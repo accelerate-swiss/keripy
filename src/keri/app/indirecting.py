@@ -914,7 +914,7 @@ class HttpEnd:
                 if sadder.ked["r"] in ("mbx",):
                     rep.set_header('Content-Type', "text/event-stream")
                     rep.status = falcon.HTTP_200
-                    rep.stream = QryRpyMailboxIterable(mbx=self., cues=self.qrycues, said=sadder.said)
+                    rep.stream = QryRpyMailboxIterable(mbx=self.mbx, cues=self.qrycues, said=sadder.said)
                 else:
                     rep.set_header('Content-Type', "application/json")
                     rep.status = falcon.HTTP_204
