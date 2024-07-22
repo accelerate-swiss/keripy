@@ -44,7 +44,7 @@ VEREX1 = b'(?P<proto1>[A-Z]{4})(?P<major1>[0-9a-f])(?P<minor1>[0-9a-f])(?P<kind1
 # version string in JSON, CBOR, or MGPK field map serialization version 2
 VER2FULLSPAN = 16  # number of characters in full version string
 VER2TERM = b'.'
-VEREX2 = b'(?P<proto2>[A-Z]{4})(?P<major2>[0-9A-Za-z_-])(?P<minor2>[0-9A-Za-z_-]{2})(?P<kind2>[A-Z]{4})(?P<size2>[0-9A-Za-z_-]{4})\.'
+VEREX2 = b'(?P<proto2>[A-Z]{4})(?P<major2>[0-9A-Za-z_-])(?P<minor2>[0-9A-Za-z_-]{2})(?P<kind2>[A-Z]{4})(?P<size2>[0-9A-Za-z_-]{4})\\.'
 
 VEREX = VEREX2 + b'|' + VEREX1
 

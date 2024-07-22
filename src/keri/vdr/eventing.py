@@ -22,6 +22,7 @@ from ..core.coring import (MtrDex, Serials, versify, Prefixer,
                            Ilks, Seqner, Verfer, Number)
 from ..core.signing import (Salter,)
 from ..core.eventing import SealEvent, ample, TraitDex, verifySigs
+from ..core.eventing import reply as to_rpy_serder
 from ..db import basing, dbing
 from ..db.dbing import dgKey, snKey
 from ..help import helping
@@ -1635,36 +1636,47 @@ class Tevery:
         ilk = ked["t"]
         route = ked["r"]
         qry = ked["q"]
+        src =qry["src"]
 
         # do signature validation and replay attack prevention logic here
         # src, dt, route
 
         if route == "tels":
             mgmt = qry["ri"]
-            src = qry["src"]
 
+            print(f"DBG: Tevery.ProcessQuery => route='{route}', mgmt='{mgmt}'")
             cloner = self.reger.clonePreIter(pre=mgmt, fn=0)  # create iterator at 0
             msgs = list()  # outgoing messages
             for msg in cloner:
                 msgs.append(msg)
 
+            print(f"DBG: Tevery.ProcessQuery => ri msg count={len(msgs)}")
             if vci := qry["i"]:
                 cloner = self.reger.clonePreIter(pre=vci, fn=0)  # create iterator at 0
+                vci_cnt = 0 
                 for msg in cloner:
                     msgs.append(msg)
+                    vci_cnt+=1
+                print(f"DBG: Tevery.ProcessQuery => vci('{vci}') msg count={vci_cnt}")
 
             if msgs:
+                print(f"DBG: Tevery.ProcessQuery => adding 'replay' cue, msgs={msgs}\n")
                 self.cues.append(dict(kin="replay", src=src, dest=source.qb64, msgs=msgs))
         elif route == "tsn":
             ri = qry["ri"]
+            print(f"DBG: Tevery.ProcessQuery => route='{route}', ri='{ri}'")
             if ri in self.tevers:
                 tever = self.tevers[ri]
                 tsn = tever.state()
-                self.cues.push(dict(kin="reply", route="/tsn/registry", data=asdict(tsn), dest=source))
+                rserder = to_rpy_serder(route=f"/tsn/{ri}", data=asdict(tsn))
+                print(f"DBG: Tevery.ProcessQuery => adding 'reply' cue, ked={rserder.ked}\n")
+                self.cues.push(dict(kin="reply", route="/tsn/registry", src=src, serder=rserder, dest=source.qb64))
 
                 if vcpre := qry["i"]:
-                    tsn = tever.vcState(vcpre=vcpre)
-                    self.cues.push(dict(kin="reply", route="/tsn/credential", data=asdict(tsn), dest=source))
+                    tsn = tever.vcState(vci=vcpre)
+                    rserder = to_rpy_serder(route=f"/tsn/credential/{vcpre}", data=asdict(tsn))
+                    print(f"DBG: Tevery.ProcessQuery => adding 'reply' cue, ked={rserder.ked}\n")
+                    self.cues.push(dict(kin="reply", route="/tsn/credential", serder=rserder, src=src, dest=source.qb64))
 
         else:
             raise ValidationError("invalid query message {} for evt = {}".format(ilk, ked))
